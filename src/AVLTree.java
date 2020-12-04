@@ -44,6 +44,7 @@ class Node {
 
 public class AVLTree {
     private Node root;
+    private int count = 0;
 
     public AVLTree() {
 
@@ -51,6 +52,115 @@ public class AVLTree {
 
     public boolean contains(Integer e) {
         return searchNode(e) != null;
+    }
+
+    public Integer getParent(Integer element) {
+        Node node = searchNode(element);
+        if (node == null) return null;
+        Node parent = node.getParent();
+        if (parent == null) return null;
+        return parent.element;
+    }
+
+    public void add(Integer element) {
+        root = insert(root, element);
+        root.resetParent();
+        count++;
+    }
+
+    public void remove(Integer e) {
+        root = removeNode(root, e);
+        if (root != null) root.resetParent();
+    }
+
+    public int getTreeHeight() {
+        return getHeight(root) + 1;
+    }
+
+    public boolean isBalanced() {
+        return isBalancedNode(root);
+    }
+
+    public int size() {
+        return count;
+    }
+
+    public boolean isEmpty() {
+        return root == null;
+    }
+
+    public LinkedList<Integer> positionsPre() {
+        LinkedList<Integer> res = new LinkedList<Integer>();
+        positionsPreAux(root, res);
+        return res;
+    }
+
+    private void positionsPreAux(Node n, LinkedList<Integer> res) {
+        if (n != null) {
+            res.add(n.element); //Visita o nodo
+            positionsPreAux(n.getLeft(), res); //Visita a subárvore da esquerda
+            positionsPreAux(n.getRight(), res); //Visita a subárvore da direita
+        }
+    }
+
+    public LinkedList<Integer> positionsPos() {
+        LinkedList<Integer> res = new LinkedList<Integer>();
+        positionsPosAux(root, res);
+        return res;
+    }
+
+    private void positionsPosAux(Node n, LinkedList<Integer> res) {
+        if (n != null) {
+            positionsPosAux(n.getLeft(), res); //Visita a subárvore da esquerda
+            positionsPosAux(n.getRight(), res); //Visita a subárvore da direita
+            res.add(n.element); //Visita o nodo
+        }
+    }
+
+    public LinkedList<Integer> positionsCentral() {
+        LinkedList<Integer> res = new LinkedList<Integer>();
+        positionsCentralAux(root, res);
+        return res;
+    }
+
+    private void positionsCentralAux(Node n, LinkedList<Integer> res) {
+        if (n != null) {
+            positionsCentralAux(n.getLeft(), res); //Visita a subárvore da esquerda
+            res.add(n.element); //Visita o nodo
+            positionsCentralAux(n.getRight(), res); //Visita a subárvore da direita
+        }
+    }
+
+    public LinkedList<Integer> positionsWidth() {
+        Queue<Node> fila = new LinkedList<>();
+        Node atual = null;
+        LinkedList<Integer> res = new LinkedList<Integer>();
+        if (root != null) {
+            fila.add(root);
+            while (!fila.isEmpty()) {
+                atual = fila.remove();
+                if (atual.getLeft() != null) {
+                    fila.add(atual.getLeft());
+                }
+                if (atual.getRight() != null) {
+                    fila.add(atual.getRight());
+                }
+                res.add(atual.element);
+            }
+        }
+        return res;
+    }
+
+    private boolean isBalancedNode(Node node) {
+        int balance = getBalanceFactor(node);
+        if (balance < -1 || balance > 1) return false;
+        if (node.getLeft() != null) {
+            if (!isBalancedNode(node.getLeft())) return false;
+        }
+        if (node.getRight() != null) {
+            if (!isBalancedNode(node.getRight())) return false;
+        }
+        return true;
     }
 
     public Node searchNode(Integer e) {
@@ -80,19 +190,6 @@ public class AVLTree {
         return null;
     }
 
-    public Integer getParent(Integer element) {
-        Node node = searchNode(element);
-        if (node == null) return null;
-        Node parent = node.getParent();
-        if (parent == null) return null;
-        return parent.element;
-    }
-
-    public void add(Integer element) {
-        root = insert(root, element);
-        root.resetParent();
-    }
-
     private Node insert(Node node, Integer element) {
         if (node == null) {
             return new Node(null, null, null, element);
@@ -106,11 +203,6 @@ public class AVLTree {
         return rebalance(node);
     }
 
-    public void remove(Integer e) {
-        root = removeNode(root, e);
-        root.resetParent();
-    }
-
     private Node removeNode(Node node, Integer e) {
         if (node == null) {
             return null;
@@ -120,8 +212,10 @@ public class AVLTree {
             node.setRight(removeNode(node.getRight(), e));
         } else {
             if (node.getLeft() == null) {
+                count--;
                 return node.getRight();
             } else if (node.getRight() == null) {
+                count--;
                 return node.getLeft();
             } else {
                 Node mostLeftChild = mostLeftChild(node.getRight());
