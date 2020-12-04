@@ -1,9 +1,9 @@
 import java.util.*;
 
 class Node {
-    public Node parent;
-    public Node left;
-    public Node right;
+    private Node parent;
+    private Node left;
+    private Node right;
     public Integer element;
     public Integer height;
 
@@ -13,6 +13,32 @@ class Node {
         this.parent = parent;
         this.element = element;
         this.height = 0;
+    }
+
+    public void setLeft(Node node) {
+        this.left = node;
+        if (node != null) node.parent = this;
+    }
+
+    public void setRight(Node node) {
+        this.right = node;
+        if (node != null) node.parent = this;
+    }
+
+    public Node getLeft() {
+        return left;
+    }
+
+    public Node getRight() {
+        return right;
+    }
+
+    public Node getParent() {
+        return parent;
+    }
+
+    public void resetParent() {
+        parent = null;
     }
 }
 
@@ -36,15 +62,15 @@ public class AVLTree {
             return node;
         } else {
             if (e < node.element) {
-                if (node.left != null) {
-                    Node n = searchNode(e, node.left);
+                if (node.getLeft() != null) {
+                    Node n = searchNode(e, node.getLeft());
                     if (n != null) {
                         return n;
                     }
                 }
             } else {
-                if (node.right != null) {
-                    Node n = searchNode(e, node.right);
+                if (node.getRight() != null) {
+                    Node n = searchNode(e, node.getRight());
                     if (n != null) {
                         return n;
                     }
@@ -54,29 +80,61 @@ public class AVLTree {
         return null;
     }
 
-    public void insert(Integer element) {
+    public Integer getParent(Integer element) {
+        Node node = searchNode(element);
+        if (node == null) return null;
+        Node parent = node.getParent();
+        if (parent == null) return null;
+        return parent.element;
+    }
+
+    public void add(Integer element) {
         root = insert(root, element);
+        root.resetParent();
     }
 
     private Node insert(Node node, Integer element) {
         if (node == null) {
             return new Node(null, null, null, element);
         } else if (node.element > element) {
-            Node n = insert(node.left, element);
-            n.parent = node;
-            node.left = n;
+            node.setLeft(insert(node.getLeft(), element));
         } else if (node.element < element) {
-            Node n = insert(node.right, element);
-            n.parent = node;
-            node.right = n;
+            node.setRight(insert(node.getRight(), element));
         } else {
             throw new RuntimeException("Element repetido!");
         }
-        return rebalance(node);=
+        return rebalance(node);
     }
 
     public void remove(Integer e) {
-        //TODO
+        root = removeNode(root, e);
+        root.resetParent();
+    }
+
+    private Node removeNode(Node node, Integer e) {
+        if (node == null) {
+            return null;
+        } else if (e < node.element) {
+            node.setLeft(removeNode(node.getLeft(), e));
+        } else if (e > node.element) {
+            node.setRight(removeNode(node.getRight(), e));
+        } else {
+            if (node.getLeft() == null) {
+                return node.getRight();
+            } else if (node.getRight() == null) {
+                return node.getLeft();
+            } else {
+                Node mostLeftChild = mostLeftChild(node.getRight());
+                node.element = mostLeftChild.element;
+                node.setRight(removeNode(node.getRight(), node.element));
+            }
+        }
+        return rebalance(node);
+    }
+
+    private Node mostLeftChild(Node node) {
+        if (node.getLeft() == null) return node;
+        return mostLeftChild(node.getLeft());
     }
 
     private Node rebalance(Node node) {
@@ -84,17 +142,19 @@ public class AVLTree {
 
         int balance = getBalanceFactor(node);
         if (balance > 1) {
-            if (getBalanceFactor(node.right) > 0) {
+            if (getHeight(node.getRight().getRight()) > getHeight(node.getRight().getLeft())) {
+            //if (getBalanceFactor(node.right) > 0) {
                 node = leftRotation(node);
             } else {
-                node.right = rightRotation(node.right);
+                node.setRight(rightRotation(node.getRight()));
                 node = leftRotation(node);
             }
         } else if (balance < -1) {
-            if (getBalanceFactor(node.left) > 0) {
+            //if (getBalanceFactor(node.left) < 0) {
+            if (getHeight(node.getLeft().getLeft()) > getHeight(node.getLeft().getRight())) {
                 node = rightRotation(node);
             } else {
-                node.left = leftRotation(node.left);
+                node.setLeft(leftRotation(node.getLeft()));
                 node = rightRotation(node);
             }
         }
@@ -112,14 +172,14 @@ public class AVLTree {
 
     private int getBalanceFactor(Node node) {
         if (node == null) return 0;
-        int heightLeft = getHeight(node.left);
-        int heightRight = getHeight(node.right);
+        int heightLeft = getHeight(node.getLeft());
+        int heightRight = getHeight(node.getRight());
         return heightRight - heightLeft;
     }
 
     private void updateHeight(Node node) {
-        int heightLeft = getHeight(node.left);
-        int heightRight = getHeight(node.right);
+        int heightLeft = getHeight(node.getLeft());
+        int heightRight = getHeight(node.getRight());
         if (heightLeft > heightRight) {
             node.height = heightLeft + 1;
         } else {
@@ -128,10 +188,10 @@ public class AVLTree {
     }
 
     private Node rightRotation(Node node) {
-        Node x = node.left;
-        Node z = x.right;
-        x.right = node;
-        node.left = z;
+        Node x = node.getLeft();
+        Node z = x.getRight();
+        x.setRight(node);
+        node.setLeft(z);
 
         updateHeight(node);
         updateHeight(x);
@@ -140,10 +200,10 @@ public class AVLTree {
     }
 
     private Node leftRotation(Node node) {
-        Node x = node.right;
-        Node z = x.left;
-        x.left = node;
-        node.right = z;
+        Node x = node.getRight();
+        Node z = x.getLeft();
+        x.setLeft(node);
+        node.setRight(z);
 
         updateHeight(node);
         updateHeight(x);
@@ -180,8 +240,8 @@ class BinaryTreePrinter {
         for (Node node : nodes) {
             if (node != null) {
                 System.out.print(node.element);
-                newNodes.add(node.left);
-                newNodes.add(node.right);
+                newNodes.add(node.getLeft());
+                newNodes.add(node.getRight());
             } else {
                 newNodes.add(null);
                 newNodes.add(null);
@@ -200,14 +260,14 @@ class BinaryTreePrinter {
                     continue;
                 }
 
-                if (nodes.get(j).left != null)
+                if (nodes.get(j).getLeft() != null)
                     System.out.print("/");
                 else
                     BinaryTreePrinter.printWhitespaces(1);
 
                 BinaryTreePrinter.printWhitespaces(i + i - 1);
 
-                if (nodes.get(j).right != null)
+                if (nodes.get(j).getRight() != null)
                     System.out.print("\\");
                 else
                     BinaryTreePrinter.printWhitespaces(1);
@@ -230,7 +290,7 @@ class BinaryTreePrinter {
         if (node == null)
             return 0;
 
-        return Math.max(BinaryTreePrinter.maxLevel(node.left), BinaryTreePrinter.maxLevel(node.right)) + 1;
+        return Math.max(BinaryTreePrinter.maxLevel(node.getLeft()), BinaryTreePrinter.maxLevel(node.getRight())) + 1;
     }
 
     private static boolean isAllElementsNull(List<Node> list) {
