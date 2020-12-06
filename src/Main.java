@@ -1,4 +1,3 @@
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class Main {
@@ -19,7 +18,34 @@ public class Main {
         System.out.println(tree.size());
         tree.remove(11);
         System.out.println(tree);
-        System.out.println(tree.getParent(2));
+        tree.remove(10);
+        System.out.println(tree);
+        tree.remove(2);
+        System.out.println(tree);
+        tree.remove(14);
+        System.out.println(tree);
+        /*tree.remove(13);
+        System.out.println(tree);
+        tree.remove(15);
+        System.out.println(tree);
+        tree.remove(1);
+        System.out.println(tree);
+        tree.remove(7);
+        System.out.println(tree);
+        tree.remove(0);
+        System.out.println(tree);
+        tree.remove(3);
+        System.out.println(tree);
+        tree.remove(8);
+        System.out.println(tree);*/
+        System.out.println(tree.getParent(0));
+        System.out.println(tree.getParent(1));
+        System.out.println(tree.getParent(3));
+        System.out.println(tree.getParent(13));
+        System.out.println(tree.getParent(7));
+        System.out.println(tree.getParent(8));
+        System.out.println(tree.getParent(15));
+        System.out.println("------");
         System.out.println(tree.getTreeHeight());
         System.out.println(tree.isBalanced());
         System.out.println(tree.size());
