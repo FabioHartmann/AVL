@@ -92,65 +92,65 @@ public class AVLTree {
     }
 
     public LinkedList<Integer> positionsPre() {
-        LinkedList<Integer> res = new LinkedList<Integer>();
-        positionsPreAux(root, res);
-        return res;
+        LinkedList<Integer> list = new LinkedList<Integer>();
+        positionsPreAux(root, list);
+        return list;
     }
 
-    private void positionsPreAux(Node n, LinkedList<Integer> res) {
-        if (n != null) {
-            res.add(n.element); //Visita o nodo
-            positionsPreAux(n.getLeft(), res); //Visita a subárvore da esquerda
-            positionsPreAux(n.getRight(), res); //Visita a subárvore da direita
+    private void positionsPreAux(Node node, LinkedList<Integer> list) {
+        if (node != null) {
+            list.add(node.element);
+            positionsPreAux(node.getLeft(), list);
+            positionsPreAux(node.getRight(), list);
         }
     }
 
     public LinkedList<Integer> positionsPos() {
-        LinkedList<Integer> res = new LinkedList<Integer>();
-        positionsPosAux(root, res);
-        return res;
+        LinkedList<Integer> list = new LinkedList<Integer>();
+        positionsPosAux(root,list );
+        return list;
     }
 
-    private void positionsPosAux(Node n, LinkedList<Integer> res) {
-        if (n != null) {
-            positionsPosAux(n.getLeft(), res); //Visita a subárvore da esquerda
-            positionsPosAux(n.getRight(), res); //Visita a subárvore da direita
-            res.add(n.element); //Visita o nodo
+    private void positionsPosAux(Node node, LinkedList<Integer> list) {
+        if (node != null) {
+            positionsPosAux(node.getLeft(), list);
+            positionsPosAux(node.getRight(), list);
+            list.add(node.element);
         }
     }
 
     public LinkedList<Integer> positionsCentral() {
-        LinkedList<Integer> res = new LinkedList<Integer>();
-        positionsCentralAux(root, res);
-        return res;
+        LinkedList<Integer> list = new LinkedList<Integer>();
+        positionsCentralAux(root, list);
+        return list;
     }
 
-    private void positionsCentralAux(Node n, LinkedList<Integer> res) {
-        if (n != null) {
-            positionsCentralAux(n.getLeft(), res); //Visita a subárvore da esquerda
-            res.add(n.element); //Visita o nodo
-            positionsCentralAux(n.getRight(), res); //Visita a subárvore da direita
+    private void positionsCentralAux(Node node, LinkedList<Integer> list) {
+        if (node != null) {
+            positionsCentralAux(node.getLeft(), list);
+            list.add(node.element);
+            positionsCentralAux(node.getRight(), list);
         }
     }
 
     public LinkedList<Integer> positionsWidth() {
-        Queue<Node> fila = new LinkedList<>();
-        Node atual = null;
-        LinkedList<Integer> res = new LinkedList<>();
+        Queue<Node> queue = new LinkedList<>();
+        Node auxNode = null;
+        LinkedList<Integer> list = new LinkedList<>();
         if (root != null) {
-            fila.add(root);
-            while (!fila.isEmpty()) {
-                atual = fila.remove();
-                if (atual.getLeft() != null) {
-                    fila.add(atual.getLeft());
+            queue.add(root);
+            while (!queue.isEmpty()) {
+                auxNode = queue.remove();
+                if (auxNode.getLeft() != null) {
+                    queue.add(auxNode.getLeft());
                 }
-                if (atual.getRight() != null) {
-                    fila.add(atual.getRight());
+                if (auxNode.getRight() != null) {
+                    queue.add(auxNode.getRight());
                 }
-                res.add(atual.element);
+                list.add(auxNode.element);
             }
         }
-        return res;
+        return list;
     }
 
     private Boolean isBalancedNode(Node node) {
@@ -222,17 +222,17 @@ public class AVLTree {
                 count--;
                 return node.getLeft();
             } else {
-                Node mostLeftChild = mostLeftChild(node.getRight());
-                node.element = mostLeftChild.element;
+                Node child = leftmostChild(node.getRight());
+                node.element = child.element;
                 node.setRight(removeAux(node.getRight(), node.element));
             }
         }
         return rebalance(node);
     }
 
-    private Node mostLeftChild(Node node) {
+    private Node leftmostChild(Node node) {
         if (node.getLeft() == null) return node;
-        return mostLeftChild(node.getLeft());
+        return leftmostChild(node.getLeft());
     }
 
     private Node rebalance(Node node) {
@@ -247,7 +247,7 @@ public class AVLTree {
                 node = leftRotation(node.getRight());
             }
         } else if (balance < -1) {
-            if (getBalanceFactor(node.getRight()) > 0) {
+            if (getBalanceFactor(node.getLeft()) > 0) {
                 node.setLeft(leftRotation(node.getLeft().getRight()));
                 node = rightRotation(node.getLeft());
             } else {
@@ -307,95 +307,5 @@ public class AVLTree {
         return node;
     }
 
-    @Override
-    public String toString() {
-        BinaryTreePrinter.printNode(root);
-        return "";
-    }
-}
-
-class BinaryTreePrinter {
-    public static void printNode(Node root) {
-        int maxLevel = BinaryTreePrinter.maxLevel(root);
-
-        printNodeInternal(Collections.singletonList(root), 1, maxLevel);
-    }
-
-    private static void printNodeInternal(List<Node> nodes, int level, int maxLevel) {
-        if (nodes.isEmpty() || BinaryTreePrinter.isAllElementsNull(nodes))
-            return;
-
-        int floor = maxLevel - level;
-        int endgeLines = (int) Math.pow(2, (Math.max(floor - 1, 0)));
-        int firstSpaces = (int) Math.pow(2, (floor)) - 1;
-        int betweenSpaces = (int) Math.pow(2, (floor + 1)) - 1;
-
-        BinaryTreePrinter.printWhitespaces(firstSpaces);
-
-        List<Node> newNodes = new ArrayList<>();
-        for (Node node : nodes) {
-            if (node != null) {
-                System.out.print(node.element);
-                newNodes.add(node.getLeft());
-                newNodes.add(node.getRight());
-            } else {
-                newNodes.add(null);
-                newNodes.add(null);
-                System.out.print(" ");
-            }
-
-            BinaryTreePrinter.printWhitespaces(betweenSpaces);
-        }
-        System.out.println("");
-
-        for (int i = 1; i <= endgeLines; i++) {
-            for (int j = 0; j < nodes.size(); j++) {
-                BinaryTreePrinter.printWhitespaces(firstSpaces - i);
-                if (nodes.get(j) == null) {
-                    BinaryTreePrinter.printWhitespaces(endgeLines + endgeLines + i + 1);
-                    continue;
-                }
-
-                if (nodes.get(j).getLeft() != null)
-                    System.out.print("/");
-                else
-                    BinaryTreePrinter.printWhitespaces(1);
-
-                BinaryTreePrinter.printWhitespaces(i + i - 1);
-
-                if (nodes.get(j).getRight() != null)
-                    System.out.print("\\");
-                else
-                    BinaryTreePrinter.printWhitespaces(1);
-
-                BinaryTreePrinter.printWhitespaces(endgeLines + endgeLines - i);
-            }
-
-            System.out.println("");
-        }
-
-        printNodeInternal(newNodes, level + 1, maxLevel);
-    }
-
-    private static void printWhitespaces(int count) {
-        for (int i = 0; i < count; i++)
-            System.out.print(" ");
-    }
-
-    private static int maxLevel(Node node) {
-        if (node == null)
-            return 0;
-
-        return Math.max(BinaryTreePrinter.maxLevel(node.getLeft()), BinaryTreePrinter.maxLevel(node.getRight())) + 1;
-    }
-
-    private static boolean isAllElementsNull(List<Node> list) {
-        for (Object object : list) {
-            if (object != null)
-                return false;
-        }
-
-        return true;
-    }
 }
 
