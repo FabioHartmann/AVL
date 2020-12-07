@@ -15,6 +15,7 @@ class Node {
         this.height = 0;
     }
 
+    // O(1)
     public void setLeft(Node node) {
         this.left = node;
         if (node != null) {
@@ -24,6 +25,7 @@ class Node {
         }
     }
 
+    // O(1)
     public void setRight(Node node) {
         this.right = node;
         if (node != null) {
@@ -54,10 +56,12 @@ public class AVLTree {
 
     }
 
+    // O(log n)
     public boolean contains(Integer e) {
         return searchNode(e) != null;
     }
 
+    // O(1)
     public Integer getParent(Integer element) {
         Node node = searchNode(element);
         if (node == null) return null;
@@ -66,37 +70,45 @@ public class AVLTree {
         return parent.element;
     }
 
+    // O(log n)
     public void add(Integer element) {
         root = insert(root, element);
         count++;
     }
 
+    // O(log n)
     public void remove(Integer e) {
         root = removeAux(root, e);
     }
 
+    // O(1)
     public Integer getTreeHeight() {
         return getHeight(root) + 1;
     }
 
+    // O(n)
     public Boolean isBalanced() {
         return isBalancedNode(root);
     }
 
+    // O(1)
     public Integer size() {
         return count;
     }
 
+    // O(1)
     public Boolean isEmpty() {
         return root == null;
     }
 
+    // O(n)
     public LinkedList<Integer> positionsPre() {
         LinkedList<Integer> list = new LinkedList<Integer>();
         positionsPreAux(root, list);
         return list;
     }
 
+    // O(n)
     private void positionsPreAux(Node node, LinkedList<Integer> list) {
         if (node != null) {
             list.add(node.element);
@@ -105,12 +117,14 @@ public class AVLTree {
         }
     }
 
+    // O(n)
     public LinkedList<Integer> positionsPos() {
         LinkedList<Integer> list = new LinkedList<Integer>();
         positionsPosAux(root,list );
         return list;
     }
 
+    // O(n)
     private void positionsPosAux(Node node, LinkedList<Integer> list) {
         if (node != null) {
             positionsPosAux(node.getLeft(), list);
@@ -119,12 +133,14 @@ public class AVLTree {
         }
     }
 
+    // O(n)
     public LinkedList<Integer> positionsCentral() {
         LinkedList<Integer> list = new LinkedList<Integer>();
         positionsCentralAux(root, list);
         return list;
     }
 
+    // O(n)
     private void positionsCentralAux(Node node, LinkedList<Integer> list) {
         if (node != null) {
             positionsCentralAux(node.getLeft(), list);
@@ -133,6 +149,7 @@ public class AVLTree {
         }
     }
 
+    // O(n)
     public LinkedList<Integer> positionsWidth() {
         Queue<Node> queue = new LinkedList<>();
         Node auxNode = null;
@@ -153,6 +170,7 @@ public class AVLTree {
         return list;
     }
 
+    // O(n)
     private Boolean isBalancedNode(Node node) {
         if (node == null) return true;
         int balance = getBalanceFactor(node);
@@ -166,10 +184,12 @@ public class AVLTree {
         return true;
     }
 
+    // O(log n)
     public Node searchNode(Integer e) {
         return searchNode(e, root);
     }
 
+    // O(log n)
     private Node searchNode(Integer e, Node node) {
         if (node == null) return null;
         if (node.element.equals(e)) {
@@ -194,6 +214,7 @@ public class AVLTree {
         return null;
     }
 
+    // O(log n)
     private Node insert(Node node, Integer element) {
         if (node == null) {
             return new Node(null, null, null, element);
@@ -207,6 +228,7 @@ public class AVLTree {
         return rebalance(node);
     }
 
+    // O(log n)
     private Node removeAux(Node node, Integer e) {
         if (node == null) {
             return null;
@@ -230,11 +252,13 @@ public class AVLTree {
         return rebalance(node);
     }
 
+    // O(log n), pior caso (A árvore está sempre balanceada)
     private Node leftmostChild(Node node) {
         if (node.getLeft() == null) return node;
         return leftmostChild(node.getLeft());
     }
 
+    // O(1)
     private Node rebalance(Node node) {
         updateHeight(node);
 
@@ -258,6 +282,7 @@ public class AVLTree {
         return node;
     }
 
+    // O(1)
     private int getHeight(Node node) {
         if (node == null) {
             return -1;
@@ -266,6 +291,7 @@ public class AVLTree {
         }
     }
 
+    // O(1)
     private int getBalanceFactor(Node node) {
         if (node == null) return 0;
         int heightLeft = getHeight(node.getLeft());
@@ -273,6 +299,7 @@ public class AVLTree {
         return heightRight - heightLeft;
     }
 
+    // O(1)
     private void updateHeight(Node node) {
         int heightLeft = getHeight(node.getLeft());
         int heightRight = getHeight(node.getRight());
@@ -283,6 +310,7 @@ public class AVLTree {
         }
     }
 
+    // O(1)
     private Node rightRotation(Node node) {
         Node parent = node.getParent();
 
@@ -295,6 +323,7 @@ public class AVLTree {
         return node;
     }
 
+    // O(1)
     private Node leftRotation(Node node) {
         Node parent = node.getParent();
 
